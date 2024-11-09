@@ -13,7 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 use App\Events\RidesUpdated;
 use App\Events\DashboardUpdated;
@@ -175,51 +177,130 @@ class RiderController extends Controller
     public function upload(Request $request)
     {
         try {
+            // Check Cloudinary configuration
+            $cloudName = Config::get('cloudinary.cloud_name');
+            $apiKey = Config::get('cloudinary.api_key');
+            $apiSecret = Config::get('cloudinary.api_secret');
+
+            if (!$cloudName || !$apiKey || !$apiSecret) {
+                Log::error('Cloudinary configuration missing', [
+                    'cloud_name' => $cloudName ? 'set' : 'missing',
+                    'api_key' => $apiKey ? 'set' : 'missing',
+                    'api_secret' => $apiSecret ? 'set' : 'missing'
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cloud storage configuration is incomplete.'
+                ], 500);
+            }
+
             // Validate input
             $request->validate([
                 'requirement_id' => 'required|integer',
                 'photo' => 'required|image|mimes:jpeg,png,jpg|max:5120',
                 'user_id' => 'required|integer',
             ]);
-    
+
             $rider = Rider::where('user_id', $request->input('user_id'))->first();
-    
-            // Check if the rider exists
+
             if (!$rider) {
                 return response()->json(['success' => false, 'message' => 'Rider not found.'], 404);
             }
-    
-            // Handle file upload
+
             if ($request->hasFile('photo')) {
-                $photoPath = $request->file('photo')->store('verification_documents', 'public');
-    
-                // Check for existing photo record
-                $requirementPhoto = RequirementPhoto::where('requirement_id', $request->input('requirement_id'))
-                                                     ->where('rider_id', $rider->rider_id)
-                                                     ->first();
-    
-                if ($requirementPhoto) {
-                    // Delete the existing image file
-                    if ($requirementPhoto->photo_url) {
-                        Storage::disk('public')->delete($requirementPhoto->photo_url);
+                $uploadedFile = $request->file('photo');
+
+                if (!$uploadedFile->isValid()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid file upload.'
+                    ], 400);
+                }
+
+                try {
+                    // Get the file path
+                    $filePath = $uploadedFile->getRealPath();
+                    
+                    // Verify file exists and is readable
+                    if (!file_exists($filePath) || !is_readable($filePath)) {
+                        throw new \Exception('Unable to read upload file');
                     }
-    
-                    // Update existing record
-                    $requirementPhoto->photo_url = $photoPath;
-                    $requirementPhoto->save();
-                } else {
-                    // Create a new record
-                    RequirementPhoto::create([
-                        'requirement_id' => $request->input('requirement_id'),
-                        'photo_url' => $photoPath,
-                        'rider_id' => $rider->rider_id,
+
+                    // Upload to Cloudinary with explicit options
+                    $uploadResult = Cloudinary::upload($filePath, [
+                        'folder' => 'verification_documents',
+                        'resource_type' => 'image',
+                        'overwrite' => true,
+                        'unique_filename' => true
                     ]);
+
+                    if (!$uploadResult || !$uploadResult->getSecurePath()) {
+                        throw new \Exception('Cloudinary upload failed to return a valid URL');
+                    }
+
+                    $photoUrl = $uploadResult->getSecurePath();
+
+                    // Check for existing photo record
+                    $requirementPhoto = RequirementPhoto::where('requirement_id', $request->input('requirement_id'))
+                        ->where('rider_id', $rider->rider_id)
+                        ->first();
+
+                    if ($requirementPhoto) {
+                        if ($requirementPhoto->photo_url) {
+                            try {
+                                $publicId = basename($requirementPhoto->photo_url, '.' . pathinfo($requirementPhoto->photo_url, PATHINFO_EXTENSION));
+                                Cloudinary::destroy($publicId);
+                            } catch (\Exception $e) {
+                                Log::warning('Failed to delete old image from Cloudinary: ' . $e->getMessage());
+                            }
+                        }
+
+                        $requirementPhoto->photo_url = $photoUrl;
+                        $requirementPhoto->save();
+                    } else {
+                        RequirementPhoto::create([
+                            'requirement_id' => $request->input('requirement_id'),
+                            'photo_url' => $photoUrl,
+                            'rider_id' => $rider->rider_id,
+                        ]);
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'File uploaded successfully.',
+                        'photo_url' => $photoUrl
+                    ]);
+
+                } catch (\Exception $cloudinaryException) {
+                    Log::error('Cloudinary upload failed', [
+                        'error' => $cloudinaryException->getMessage(),
+                        'trace' => $cloudinaryException->getTraceAsString()
+                    ]);
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to upload file to cloud storage.',
+                        'error' => $cloudinaryException->getMessage()
+                    ], 500);
                 }
             }
-    
-            return response()->json(['success' => true, 'message' => 'File uploaded successfully.']);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'No file was uploaded.'
+            ], 400);
+
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'File upload failed.', 'error' => $e->getMessage()]);
+            Log::error('File upload failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'File upload failed.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
     
@@ -302,25 +383,25 @@ class RiderController extends Controller
             foreach ($photos as $photo) {
                 switch ($photo->requirement_id) {
                     case 1:
-                        $response['motor_model_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['motor_model_image_url'] = $photo->photo_url;
                         break;
                     case 2:
-                        $response['or_cr_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['or_cr_image_url'] = $photo->photo_url;
                         break;
                     case 4:
-                        $response['cor_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['cor_image_url'] = $photo->photo_url;
                         break;
                     case 5:
-                        $response['license_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['license_image_url'] = $photo->photo_url;
                         break;
                     case 8:
-                        $response['tpl_insurance_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['tpl_insurance_image_url'] = $photo->photo_url;
                         break;
                     case 9:
-                        $response['brgy_clearance_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['brgy_clearance_image_url'] = $photo->photo_url;
                         break;
                     case 10:
-                        $response['police_clearance_image_url'] = asset('storage/' . $photo->photo_url);
+                        $response['police_clearance_image_url'] = $photo->photo_url;
                         break;
                     default:
                         break;

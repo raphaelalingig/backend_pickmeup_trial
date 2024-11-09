@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "cloudinary-labs/cloudinary-laravel": "*",
         "infobip/infobip-api-php-client": "^4.0",
         "laravel/framework": "^11.30",
         "laravel/reverb": "^1.0",
