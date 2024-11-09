@@ -5,7 +5,9 @@ return [
     'allowed_origins' => [
         'https://oyster-app-etowk.ondigitalocean.app',
         'http://localhost:3000', 
-        'https://backendpickmeup-production.up.railway.app'],
+        'https://backendpickmeup-production.up.railway.app',
+        'https://pickmeupadmin.xyz',
+        ],
 
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
