@@ -128,21 +128,6 @@ class CustomerController extends Controller
 
     public function checkActiveRide($user_id)
     {
-
-        // $activeRide = RideHistory::where('ride_histories.rider_id', $user_id)
-        // ->whereIn('ride_histories.status', ['Available', 'Booked', 'In Transit', 'Review'])
-        // ->join('users', 'ride_histories.user_id', '=', 'users.user_id') // Join with users
-        // ->join('riders', 'users.user_id', '=', 'riders.user_id') // Join with riders via users
-        // ->with(['user', 'ridelocations']) // Load other relationships as usual
-        // ->select(
-        //     'ride_histories.*',
-        //     'riders.rider_latitude',
-        //     'riders.rider_longitude',
-        //     'riders.availability'
-        // ) // Select specific fields from riders if needed
-        // ->latest('ride_histories.created_at')
-        // ->first();
-
         $activeRide = RideHistory::where('user_id', $user_id)
             ->whereIn('status', ['Available', 'Booked', 'In Transit', 'Review'])
             ->join('ride_locations', 'ride_histories.ride_id', '=', 'ride_locations.ride_id')
