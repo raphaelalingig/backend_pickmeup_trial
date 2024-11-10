@@ -48,6 +48,7 @@ Route::prefix('/user')->group(function() {
 
     
     Route::put('rider_available', [RiderController::class, 'updateAvailability']);
+    Route::put('update_rider_loc', [RiderController::class, 'updateRiderLocation']);
     Route::put('rider/{user_id}/status', [CustomerController::class, 'updateStatus']);
     Route::get('/available-rides', [RiderController::class, 'getAvailableRides']);
     Route::get('/apply/{userId}', [RiderController::class, 'getApplications']);

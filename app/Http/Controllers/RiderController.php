@@ -69,6 +69,22 @@ class RiderController extends Controller
         }
     }
 
+    public function updateRiderLocation(Request $request)
+    {
+        $rider = Rider::where('user_id', $request->input('user_id'))->first();
+    
+        if ($rider) {
+            $rider->rider_latitude = $request->input('latitude');
+            $rider->rider_longitude = $request->input('longitude');
+            
+            $rider->save();
+    
+            return response()->json($rider);
+        } else {
+            return response()->json(['error' => 'Rider not found'], 404);
+        }
+    }
+
     public function getRiderById($user_id)
     {
         $user = User::where('role_id', User::ROLE_RIDER)
@@ -647,7 +663,7 @@ class RiderController extends Controller
             return response()->json(['error' => 'This ride is no longer available.'], 400);
         }
     
-        // Logic to cancel the ride
+        // Logic to start the ride
         $ride->status = 'In Transit';
         $ride->save();
     
@@ -661,8 +677,12 @@ class RiderController extends Controller
         if (!$ride || $ride->status == 'Canceled') {
             return response()->json(['error' => 'This ride is no longer available.'], 400);
         }
+
+        $rider = Rider::find($ride->rider_id);
+        $rider->availability = "Available";
+        $rider->save();
     
-        // Logic to cancel the ride
+        // Logic to finish the ride
         $ride->status = 'Review';
         $ride->save();
     
