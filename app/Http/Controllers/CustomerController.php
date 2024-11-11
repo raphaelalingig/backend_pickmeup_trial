@@ -191,15 +191,6 @@ class CustomerController extends Controller
                                 ->where('status', 'Matched')
                                 ->where('apply_to', $rider_id);
 
-            if($apply){
-                // broadcast(new RideApply($apply));
-                $rides = $this->ridesService->getAvailableRides();
-                event(new RidesUpdated($rides));
-
-                
-            }
-
-
             $ride->rider_id = $rider_id ;
             $ride->status = "Booked";
             $ride->save();
@@ -217,6 +208,34 @@ class CustomerController extends Controller
                 $bookings = $data['bookings'];
                 
                 event(new DashboardUpdated($counts, $bookings));
+
+            $apply = RideApplication::where('ride_id', $ride_id)
+                        ->where('applier', $rider_id)
+                        ->where('status', 'Matched')
+                        ->lockForUpdate()
+                        ->first();
+
+            $customer = User::where('user_id', $apply->apply_to)
+                        ->first(['first_name', 'last_name', 'mobile_number', 'status']);
+
+            // Log the rider's first name
+            if ($customer) {
+                Log::info("User: " . $customer->first_name);
+            }
+
+            // Check if $apply is not null before merging
+            if ($apply) {
+                // Merge data from $apply and additional rider info
+                $ride = array_merge($apply->toArray(), [
+                    'customer_name' => $customer->first_name . ' ' . $customer->last_name,
+                ]);
+
+                // Log and broadcast the ride data
+                Log::info("Broadcasting Ride Data: " . json_encode($ride));
+                event(new RideBooked($ride));
+            } else {
+                Log::warning("No matching RideApplication found for ride_id: $ride_id, applier: $customer, apply_to: $user_id");
+            }
 
 
             
@@ -396,6 +415,13 @@ class CustomerController extends Controller
         // Logic to cancel the ride
         $ride->status = 'Completed';
         $ride->save();
+
+        $rider_status = Rider::where('user_id', $ride->rider_id)
+                ->lockForUpdate()
+                ->first();
+
+        $rider_status->availability = "Available";
+        $rider_status->save();
     
         return response()->json(['message' => 'Ride successfully ended']);
     }

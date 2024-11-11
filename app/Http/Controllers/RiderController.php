@@ -459,43 +459,6 @@ class RiderController extends Controller
                             ->first();
     
         if ($ride) {
-            $apply = RideApplication::where('ride_id', $ride_id)
-                                ->where('applier', $customer)
-                                ->where('apply_to', $user_id)
-                                ->where('status', 'Matched')
-                                ->lockForUpdate()
-                                ->first();
-            // if ($apply) {
-            //     // Broadcasting and event handling code goes here...
-    
-            //     $completeRideData = RideHistory::join('users', 'ride_histories.user_id', '=', 'users.user_id')
-            //                                     ->join('ride_locations', 'ride_histories.ride_id', '=', 'ride_locations.ride_id')
-            //                                     ->where('ride_histories.ride_id', $ride_id)
-            //                                     ->select(
-            //                                         'ride_histories.*',
-            //                                         'users.first_name',
-            //                                         'users.last_name',
-            //                                     )
-            //                                     ->first();
-    
-            //     $customer_name = User::where('user_id', $customer)
-            //                          ->first(['first_name', 'last_name', 'mobile_number', 'status']);
-    
-            //     Log::info("User: " . $customer_name->first_name);
-    
-            //     // Merge data without collecting it
-            //     $ride = array_merge($completeRideData->toArray(), [
-            //         'apply_id' => $apply->apply_id,
-            //         'applier' => $apply->applier,
-            //         'apply_to' => $apply->apply_to,
-            //         'rider_name' => $customer_name->first_name . ' ' . $customer_name->last_name,
-            //     ]);
-    
-            //     // Event broadcasting
-            //     Log::info("Broadcasting Ride Data: " . json_encode($ride));
-            //     event(new RideBooked($ride));
-            // }
-    
             // Update the ride history record
             $ride->rider_id = $user_id;
             $ride->status = "Booked";
@@ -517,36 +480,37 @@ class RiderController extends Controller
             event(new DashboardUpdated($counts, $bookings));
 
 
-            Log::info("User: " . $customer);
-            Log::info("User: " . $user_id);
+            Log::info("Customer: " . $customer);
+            Log::info("Rider: " . $user_id);
 
+            $apply = RideApplication::where('ride_id', $ride_id)
+                        ->where('applier', $customer)
+                        ->where('apply_to', $user_id)
+                        ->where('status', 'Matched')
+                        ->lockForUpdate()
+                        ->first();
 
-            $completeRideData = RideHistory::join('users', 'ride_histories.user_id', '=', 'users.user_id')
-                                                ->join('ride_locations', 'ride_histories.ride_id', '=', 'ride_locations.ride_id')
-                                                ->where('ride_histories.ride_id', $ride_id)
-                                                ->select(
-                                                    'ride_histories.*',
-                                                    'users.first_name',
-                                                    'users.last_name',
-                                                )
-                                                ->first();
-    
-            $rider_name = User::where('user_id', $user_id)
-                                    ->first(['first_name', 'last_name', 'mobile_number', 'status']);
+            $rider = User::where('user_id', $user_id)
+                        ->first(['first_name', 'last_name', 'mobile_number', 'status']);
 
-            Log::info("User: " . $rider_name->first_name);
+            // Log the rider's first name
+            if ($rider) {
+                Log::info("User: " . $rider->first_name);
+            }
 
-            // Merge data without collecting it
-            $ride = array_merge($completeRideData->toArray(), [
-                'apply_id' => $apply->apply_id,
-                'applier' => $apply->applier,
-                'apply_to' => $apply->apply_to,
-                'rider_name' => $rider_name->first_name . ' ' . $rider_name->last_name,
-            ]);
+            // Check if $apply is not null before merging
+            if ($apply) {
+                // Merge data from $apply and additional rider info
+                $ride = array_merge($apply->toArray(), [
+                    'rider_name' => $rider->first_name . ' ' . $rider->last_name,
+                ]);
 
-            // Event broadcasting
-            Log::info("Broadcastingfasfafafs Ride Data: " . json_encode($ride));
-            event(new RideBooked($ride));
+                // Log and broadcast the ride data
+                Log::info("Broadcasting Ride Data: " . json_encode($ride));
+                event(new RideBooked($ride));
+            } else {
+                Log::warning("No matching RideApplication found for ride_id: $ride_id, applier: $customer, apply_to: $user_id");
+            }
     
             Log::info("Ride history updated successfully for ride ID: " . $ride_id);
         } else {
