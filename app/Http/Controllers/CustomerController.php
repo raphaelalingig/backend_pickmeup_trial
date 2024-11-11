@@ -401,8 +401,11 @@ class CustomerController extends Controller
         event(new DashboardUpdated($counts, $bookings));
 
         $rider = Rider::where('user_id', $ride->rider_id)->first();
-        $rider->availability = "Available";
-        $rider->save();
+        if($rider){
+            $rider->availability = "Available";
+            $rider->save();
+        }
+            
     
         return response()->json(['message' => 'Ride successfully canceled']);
     }
