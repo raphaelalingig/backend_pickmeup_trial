@@ -43,7 +43,8 @@ class RiderController extends Controller
             ->whereHas('rider', function($query) {
                 $query->where('verification_status', 'Verified');
             })
-            ->with(['rider:verification_status,user_id,rider_id', 'rider.requirementPhotos' => function($query) {
+            ->with('rider' )
+            ->with(['rider:verification_status,user_id,rider_id,availability', 'rider.requirementPhotos' => function($query) {
                 $query->whereIn('requirement_id', [3, 6]) // Assuming 1 is for license and 2 is for OR
                     ->select('rider_id', 'requirement_id', 'photo_url');
             }])
@@ -642,13 +643,13 @@ class RiderController extends Controller
             return response()->json(['error' => 'This ride is no longer available.'], 400);
         }
 
-        $rider = Rider::find($ride->rider_id);
-        $rider->availability = "Available";
-        $rider->save();
-    
         // Logic to finish the ride
         $ride->status = 'Review';
         $ride->save();
+
+        $rider = Rider::where('user_id', $ride->rider_id)->first();
+        $rider->availability = "Available";
+        $rider->save();
     
         return response()->json(['message' => 'Ride successfully ended']);
     }

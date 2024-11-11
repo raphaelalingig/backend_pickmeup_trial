@@ -13,8 +13,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use App\Events\RidesUpdated;
+use App\Events\RideBooked;
 use App\Events\DashboardUpdated;
 use App\Events\RideApply;
+use App\Events\RideProgress;
 // use App\Events\NewNotification;
 
 
@@ -349,9 +351,6 @@ class CustomerController extends Controller
             return response()->json(['error' => 'Failed to apply ride. Please try again.'], 500);
         }
     }
-    
-
-    
 
 
     public function getRiderLocations()
@@ -400,6 +399,10 @@ class CustomerController extends Controller
         $bookings = $data['bookings'];
         
         event(new DashboardUpdated($counts, $bookings));
+
+        $rider = Rider::where('user_id', $ride->rider_id)->first();
+        $rider->availability = "Available";
+        $rider->save();
     
         return response()->json(['message' => 'Ride successfully canceled']);
     }
