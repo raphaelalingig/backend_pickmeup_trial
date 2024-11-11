@@ -12,11 +12,7 @@ class CreateDeliveryTable extends Migration
             $table->id('delivery_id');
             $table->unsignedBigInteger('ride_id');
             $table->dateTime('ride_date');
-            $table->string('pickup_location');
-            $table->string('dropoff_location');
             $table->string('description');
-            $table->decimal('fare', 8, 2);
-            $table->string('status');
             $table->timestamps();
 
             $table->foreign('ride_id')->references('ride_id')->on('ride_histories')->onDelete('cascade');
