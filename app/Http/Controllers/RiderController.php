@@ -20,6 +20,7 @@ use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Events\RidesUpdated;
 use App\Events\DashboardUpdated;
 use App\Events\RideBooked;
+use App\Events\RideProgress;
 
 use App\Services\DashboardService;
 use App\Services\RidesService;
@@ -631,6 +632,16 @@ class RiderController extends Controller
         // Logic to start the ride
         $ride->status = 'In Transit';
         $ride->save();
+
+
+        $update = [
+            'id' => $ride->user_id,
+            'status' => 'Start'
+        ];
+        Log::info("Ride Application successfully: " . json_encode($update));
+        event(new RideProgress($update));
+
+
     
         return response()->json(['message' => 'Now In Transit']);
     }
@@ -650,6 +661,14 @@ class RiderController extends Controller
         $rider = Rider::where('user_id', $ride->rider_id)->first();
         $rider->availability = "Available";
         $rider->save();
+
+        $update = [
+            'id' => $ride->user_id,
+            'status' => 'Completed'
+        ];
+
+        Log::info("Ride Application successfully: " . json_encode($update));
+        event(new RideProgress($update));
     
         return response()->json(['message' => 'Ride successfully ended']);
     }

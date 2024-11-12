@@ -404,6 +404,13 @@ class CustomerController extends Controller
         if($rider){
             $rider->availability = "Available";
             $rider->save();
+
+            $update = [
+                'id' => $ride->user_id,
+                'status' => 'Cancel'
+            ];
+            Log::info("Ride Application successfully: " . json_encode($update));
+            event(new RideProgress($update));
         }
             
     

@@ -16,11 +16,11 @@ class RideProgress implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $ride;
+    public $update;
 
-    public function __construct($ride)
+    public function __construct($update)
     {
-        $this->ride = $ride;
+        $this->update = $update;
     }
 
     public function broadcastOn()
@@ -36,7 +36,7 @@ class RideProgress implements ShouldBroadcastNow
     public function broadcastWith()
     {
         return [
-            'ride' => $this->ride
+            'update' => $this->update
         ];
     }
 }
