@@ -21,6 +21,7 @@ class User extends Authenticatable
         'date_of_birth',
         'email',
         'user_name',
+        'rating',
         'password',
         'mobile_number',
         'status'

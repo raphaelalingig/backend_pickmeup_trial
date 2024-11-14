@@ -12,9 +12,6 @@ use Illuminate\Validation\ValidationException;
 
 class FeedbackController extends Controller
 {
-    /**
-     * Get all feedback with user details
-     */
     public function index()
     {
         try {
@@ -42,10 +39,7 @@ class FeedbackController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Submit new feedback
-     */
+    
     public function submitFeedback(Request $request)
     {
         DB::beginTransaction();

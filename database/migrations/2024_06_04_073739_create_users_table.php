@@ -20,9 +20,10 @@ return new class extends Migration
             $table->date('date_of_birth');
             $table->string('email')->unique();  
             $table->string('user_name')->unique();
+            $table->string('status')->default('Active');
+            $table->decimal('rating', 3, 2)->default(0.00);
             $table->string('password');
             $table->string('mobile_number', 13)->nullable();
-            $table->string('status')->default('Active');
             $table->timestamps();
             $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('restrict')->onUpdate('cascade');
         });
