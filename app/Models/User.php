@@ -69,13 +69,13 @@ class User extends Authenticatable
 
     public function feedbacks()
     {
-        return $this->morphMany(Feedback::class, 'sender');
+        return $this->hasMany(Feedback::class, 'sender_id', 'user_id');
     }
 
     public function receivedFeedbacks()
     {
-        return $this->morphMany(Feedback::class, 'recipient');
-    }
+        return $this->hasMany(Feedback::class, 'recipient_id', 'user_id');
+    }   
 
    
 }

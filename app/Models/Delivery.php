@@ -18,12 +18,8 @@ class Delivery extends Model
     // Specify the attributes that are mass assignable
     protected $fillable = [
         'ride_id',
-        'ride_date',
-        'pickup_location',
-        'dropoff_location',
-        'description',
-        'fare',
-        'status',
+        'delivery_type',
+        'instructions',
     ];
 
     /**

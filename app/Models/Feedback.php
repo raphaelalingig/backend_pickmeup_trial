@@ -13,18 +13,31 @@ class Feedback extends Model
     protected $table = 'feedbacks';
 
     protected $fillable = [
-        'sender_id',
-        'sender_type',
-        'recipient_id',
-        'recipient_type',
+        'sender',
+        'recipient',
         'comment',
         'rating',
         'ride_id',
     ];
 
-    // If you want to include created_at and updated_at in JSON
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
+
+    // Add relationships for better data handling
+    public function senderUser()
+    {
+        return $this->belongsTo(User::class, 'sender', 'user_id');
+    }
+
+    public function recipientUser()
+    {
+        return $this->belongsTo(User::class, 'recipient', 'user_id');
+    }
+
+    public function rideHistory()
+    {
+        return $this->belongsTo(RideHistory::class, 'ride_id', 'ride_id');
+    }
 }

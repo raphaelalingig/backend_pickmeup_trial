@@ -139,11 +139,16 @@ class AuthController extends Authenticatable
 
     public function logoutAccount(Request $request) {
         try {
-            $request->user()->currentAccessToken()->delete();
-
-            return response(['message' => 'Successfully logout'], 200);
+            // Check if there's a token to delete
+            $token = $request->user()->currentAccessToken();
+    
+            if ($token) {
+                $token->delete();
+            }
+    
+            return response(['message' => 'Successfully logged out'], 200);
         } catch (\Throwable $th) {
-            return response(['message' => $th->getMessage()], 400);
+            return response(['message' => 'Logout completed, token not found or already invalid'], 200); // Optional: or return a 204 No Content status
         }
     }
 

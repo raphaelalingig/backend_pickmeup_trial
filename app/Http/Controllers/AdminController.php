@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class AdminController extends Controller
@@ -60,6 +61,12 @@ class AdminController extends Controller
     \Log::info('Profile update request received', [
         'userId' => $userId,
         'request_data' => $request->all()
+    ]);
+
+    Log::info('Raw request data', [
+        'all' => request()->all(),
+        'files' => request()->allFiles(),
+        'headers' => request()->headers->all()
     ]);
     
     try {
@@ -270,6 +277,8 @@ class AdminController extends Controller
             'message' => 'Rider verification status updated successfully',
             'rider' => $rider
         ]);
+
+
     }
 
     public function getRiderLocations()

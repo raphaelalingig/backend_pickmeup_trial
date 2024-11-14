@@ -11,8 +11,8 @@ class CreateDeliveryTable extends Migration
         Schema::create('delivery', function (Blueprint $table) {
             $table->id('delivery_id');
             $table->unsignedBigInteger('ride_id');
-            $table->dateTime('ride_date');
-            $table->string('description');
+            $table->string('delivery_type');
+            $table->string('instructions');
             $table->timestamps();
 
             $table->foreign('ride_id')->references('ride_id')->on('ride_histories')->onDelete('cascade');

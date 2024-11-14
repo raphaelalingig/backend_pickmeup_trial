@@ -10,14 +10,16 @@ class CreateFeedbacksTable extends Migration
     {
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id('feedback_id');
-            $table->morphs('sender'); // Creates sender_id and sender_type columns
-            $table->morphs('recipient'); // Creates recipient_id and recipient_type columns
-            $table->text('comment');
-            $table->decimal('rating', 8, 2);
+            $table->unsignedBigInteger('sender');
+            $table->unsignedBigInteger('recipient');
+            $table->text('comment')->nullable();
+            $table->integer('rating');
             $table->unsignedBigInteger('ride_id');
             $table->timestamps();
 
             $table->foreign('ride_id')->references('ride_id')->on('ride_histories');
+            $table->foreign('sender')->references('user_id')->on('users');
+            $table->foreign('recipient')->references('user_id')->on('users');
         });
     }
 
