@@ -39,7 +39,6 @@ class FeedbackController extends Controller
             ], 500);
         }
     }
-    
     public function submitFeedback(Request $request)
     {
         DB::beginTransaction();
@@ -92,7 +91,7 @@ class FeedbackController extends Controller
             if ($existingFeedback) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Feedback already submitted for this ride'
+                    'message' => 'You have already submitted feedback for this ride'
                 ], 400);
             }
 
@@ -121,7 +120,7 @@ class FeedbackController extends Controller
             Log::error('Validation error: ' . json_encode($e->errors()));
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Please check your input and try again',
                 'errors' => $e->errors()
             ], 422);
 
@@ -130,7 +129,7 @@ class FeedbackController extends Controller
             Log::error('Error submitting feedback: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while submitting feedback',
+                'message' => 'An error occurred while submitting feedback. Please try again later.',
                 'error' => $e->getMessage()
             ], 500);
         }

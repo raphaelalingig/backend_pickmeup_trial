@@ -127,6 +127,13 @@ class RiderController extends Controller
             Log::info("No applications found for user_id: " . $userId);
             return response()->json(['message' => 'No applications found', 'data' => []], 200);
         }
+        $rider = RideHistory::where('ride_id', $apply->ride_id)
+                ->first();
+        
+        if (!$rider) {
+            Log::info("No longer available found for user_id: " . $userId);
+            return response()->json(['message' => 'No applications found', 'data' => []], 200);
+        }
 
         // Fetch user details
         $user = User::where('user_id', $apply->applier)
