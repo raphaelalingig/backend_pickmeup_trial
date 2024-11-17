@@ -56,102 +56,102 @@ class AdminController extends Controller
     //     ]);
     // }
 
-    public function updateProfile(Request $request, $userId)
-{
-    \Log::info('Profile update request received', [
-        'userId' => $userId,
-        'request_data' => $request->all()
-    ]);
+//     public function updateProfile(Request $request, $userId)
+// {
+//     \Log::info('Profile update request received', [
+//         'userId' => $userId,
+//         'request_data' => $request->all()
+//     ]);
 
-    Log::info('Raw request data', [
-        'all' => request()->all(),
-        'files' => request()->allFiles(),
-        'headers' => request()->headers->all()
-    ]);
+//     Log::info('Raw request data', [
+//         'all' => request()->all(),
+//         'files' => request()->allFiles(),
+//         'headers' => request()->headers->all()
+//     ]);
     
-    try {
-        $user = User::findOrFail($userId);
+//     try {
+//         $user = User::findOrFail($userId);
         
-        // Initialize updates array
-        $updates = [];
+//         // Initialize updates array
+//         $updates = [];
         
-        // Check for username update
-        if ($request->has('user_name') && $request->user_name !== $user->user_name) {
-            $updates['user_name'] = $request->user_name;
-        }
+//         // Check for username update
+//         if ($request->has('user_name') && $request->user_name !== $user->user_name) {
+//             $updates['user_name'] = $request->user_name;
+//         }
         
-        // Check for email update
-        if ($request->has('email') && $request->email !== $user->email) {
-            $updates['email'] = $request->email;
-        }
+//         // Check for email update
+//         if ($request->has('email') && $request->email !== $user->email) {
+//             $updates['email'] = $request->email;
+//         }
         
-        // Validate updates if any exist
-        if (!empty($updates)) {
-            $validator = Validator::make($updates, [
-                'user_name' => ['sometimes', 'string', 'max:255', Rule::unique('users')->ignore($user->user_id)],
-                'email' => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->user_id)],
-            ]);
+//         // Validate updates if any exist
+//         if (!empty($updates)) {
+//             $validator = Validator::make($updates, [
+//                 'user_name' => ['sometimes', 'string', 'max:255', Rule::unique('users')->ignore($user->user_id)],
+//                 'email' => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->user_id)],
+//             ]);
 
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            }
-        }
+//             if ($validator->fails()) {
+//                 return response()->json(['error' => $validator->errors()], 422);
+//             }
+//         }
         
-        // Handle password update
-        if ($request->filled('newPassword')) {
-            $passwordValidator = Validator::make($request->all(), [
-                'currentPassword' => 'required|string',
-                'newPassword' => 'required|string|min:8|confirmed',
-            ]);
+//         // Handle password update
+//         if ($request->filled('newPassword')) {
+//             $passwordValidator = Validator::make($request->all(), [
+//                 'currentPassword' => 'required|string',
+//                 'newPassword' => 'required|string|min:8|confirmed',
+//             ]);
 
-            if ($passwordValidator->fails()) {
-                return response()->json(['error' => $passwordValidator->errors()], 422);
-            }
+//             if ($passwordValidator->fails()) {
+//                 return response()->json(['error' => $passwordValidator->errors()], 422);
+//             }
 
-            if (!Hash::check($request->currentPassword, $user->password)) {
-                return response()->json(['error' => 'Current password is incorrect'], 422);
-            }
+//             if (!Hash::check($request->currentPassword, $user->password)) {
+//                 return response()->json(['error' => 'Current password is incorrect'], 422);
+//             }
             
-            $updates['password'] = Hash::make($request->newPassword);
-        }
+//             $updates['password'] = Hash::make($request->newPassword);
+//         }
 
-        // If no updates, return early with 304 status
-        if (empty($updates)) {
-            return response()->json([
-                'message' => 'No changes detected',
-                'user' => [
-                    'user_name' => $user->user_name,
-                    'email' => $user->email,
-                ]
-            ], 304);
-        }
+//         // If no updates, return early with 304 status
+//         if (empty($updates)) {
+//             return response()->json([
+//                 'message' => 'No changes detected',
+//                 'user' => [
+//                     'user_name' => $user->user_name,
+//                     'email' => $user->email,
+//                 ]
+//             ], 304);
+//         }
 
-        // Perform update
-        DB::beginTransaction();
-        try {
-            $user->update($updates);
-            DB::commit();
+//         // Perform update
+//         DB::beginTransaction();
+//         try {
+//             $user->update($updates);
+//             DB::commit();
             
-            return response()->json([
-                'message' => 'Profile updated successfully!',
-                'user' => [
-                    'user_name' => $user->user_name,
-                    'email' => $user->email,
-                ]
-            ]);
+//             return response()->json([
+//                 'message' => 'Profile updated successfully!',
+//                 'user' => [
+//                     'user_name' => $user->user_name,
+//                     'email' => $user->email,
+//                 ]
+//             ]);
             
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Update failed:', ['error' => $e->getMessage()]);
-            throw $e;
-        }
-    } catch (\Exception $e) {
-        \Log::error('Profile update failed:', ['error' => $e->getMessage()]);
-        return response()->json([
-            'error' => 'Failed to update profile. Please try again later.'
-        ], 500);
-    }
-}
+//         } catch (\Exception $e) {
+//             DB::rollBack();
+//             \Log::error('Update failed:', ['error' => $e->getMessage()]);
+//             throw $e;
+//         }
+//     } catch (\Exception $e) {
+//         \Log::error('Profile update failed:', ['error' => $e->getMessage()]);
+//         return response()->json([
+//             'error' => 'Failed to update profile. Please try again later.'
+//         ], 500);
+//     }
+// }
 
 
 

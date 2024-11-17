@@ -48,7 +48,7 @@ class FeedbackController extends Controller
         }
     }
 
-    public function submitFeedback(Request $request)
+    public function submitFeedBack(Request $request)
     {
         $validated = $request->validate([
             'sender' => 'required|integer|exists:users,user_id',
@@ -96,8 +96,7 @@ class FeedbackController extends Controller
         ], 201);
     }
 
-
-    public function submitFeedback1(Request $request)
+    public function submitFededback(Request $request)
     {
         DB::beginTransaction();
         

@@ -62,6 +62,11 @@ class AuthController extends Authenticatable
 
             $user = $request->user();
             $token = $user->createToken('Personal Access Token')->plainTextToken;
+
+
+            // if($user->status === "Disabled"){
+            //     return response(['message' => 'Disabled'], 200);
+            // }
             
             return response([
                 'token' => $token,

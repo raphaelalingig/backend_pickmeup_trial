@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\RideController;
+use App\Http\Controllers\BookController;
 use App\Models\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
 
@@ -42,10 +43,6 @@ Route::prefix('/user')->group(function() {
     Route::post('/upload', [RiderController::class, 'upload'])->middleware('auth:sanctum');
     Route::post('/update-rider-info', [RiderController::class, 'updateRiderInfo'])->middleware('auth:sanctum');
     Route::get('/requirement_photos/{rider_id}', [RiderController::class, 'getUploadedImages']);
-
-
-
-
     
     Route::put('rider_available', [RiderController::class, 'updateAvailability']);
     Route::put('update_rider_loc', [RiderController::class, 'updateRiderLocation']);
@@ -63,6 +60,8 @@ Route::prefix('/user')->group(function() {
     Route::put('customer/{user_id}/status', [CustomerController::class, 'updateStatus']);
     Route::get('customerId/{user_id}', [CustomerController::class, 'getCustomerById']);
     Route::post('/book', [CustomerController::class, 'book']);
+    Route::post('/book_delivery', [BookController::class, 'book_delivery']);
+    Route::post('/pakyaw_delivery', [BookController::class, 'pakyaw_delivery']);
     Route::get('check-existing-booking/{user_id}', [CustomerController::class, 'checkActiveRide']);
     Route::get('latest-available/{user_id}', [CustomerController::class, 'getLatestAvailableRide']);
     Route::get('latest-available2/{user_id}', [CustomerController::class, 'getLatestAvailableRide2']);

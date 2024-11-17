@@ -132,6 +132,7 @@ class CustomerController extends Controller
     {
         $activeRide = RideHistory::where('user_id', $user_id)
             ->whereIn('status', ['Available', 'Booked', 'In Transit', 'Review'])
+            // ->where('ride_type', '!=', 'Delivery') // Exclude ride_type 'Delivery'
             ->join('ride_locations', 'ride_histories.ride_id', '=', 'ride_locations.ride_id')
             ->select(
                 'ride_histories.*',
@@ -149,6 +150,30 @@ class CustomerController extends Controller
             'rideDetails' => $activeRide
         ]);
     }
+
+
+    // public function checkActiveDelivery($user_id)
+    // {
+    //     $activeRide = RideHistory::where('user_id', $user_id)
+    //         ->whereIn('status', ['Available', 'Booked', 'In Transit', 'Review'])
+    //         ->where('ride_type', 'Delivery')
+    //         ->join('ride_locations', 'ride_histories.ride_id', '=', 'ride_locations.ride_id')
+    //         ->select(
+    //             'ride_histories.*',
+    //             'ride_locations.customer_latitude',
+    //             'ride_locations.customer_longitude',
+    //             'ride_locations.dropoff_latitude',
+    //             'ride_locations.dropoff_longitude'
+    //         )
+    //         ->with(['user', 'rider'])
+    //         ->latest()
+    //         ->first();
+
+    //     return response()->json([
+    //         'hasActiveRide' => $activeRide !== null,
+    //         'rideDetails' => $activeRide
+    //     ]);
+    // }
 
 
     public function viewApplications(Request $request)
@@ -284,20 +309,20 @@ class CustomerController extends Controller
                     return response()->json(['message' => 'exist'], 200);
                 }
 
-                $accept = RideApplication::where('ride_id', $ride_id)
-                                ->where('apply_to', $user_id)
-                                ->lockForUpdate()
-                                ->first();
+                // $accept = RideApplication::where('ride_id', $ride_id)
+                //                 ->where('apply_to', $user_id)
+                //                 ->lockForUpdate()
+                //                 ->first();
 
-                if ($accept) {
-                    $accept->status = 'Matched';
-                    $accept->save();
+                // if ($accept) {
+                //     $accept->status = 'Matched';
+                //     $accept->save();
 
-                    $this->updateRideHistory($ride_id, $rider_id);
+                //     $this->updateRideHistory($ride_id, $rider_id);
 
-                    Log::info("Ride Matched successfully: " . $ride_id);
-                    return response()->json(['message' => 'Accepted Successfully.']);
-                }
+                //     Log::info("Ride Matched successfully: " . $ride_id);
+                //     return response()->json(['message' => 'Accepted Successfully.']);
+                // }
 
                 $apply = new RideApplication();
                 $apply->ride_id = $ride_id;
