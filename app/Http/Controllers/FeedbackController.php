@@ -49,6 +49,44 @@ class FeedbackController extends Controller
         }
     }
 
+
+    public function reports()
+    {
+        try {
+            $reports = Report::select(
+                'reports.*',
+                'ride_id',
+                'sender_user.first_name as sender_first_name',
+                'sender_user.last_name as sender_last_name',
+                'recipient_user.first_name as recipient_first_name',
+                'recipient_user.last_name as recipient_last_name',
+                'comment',
+                'reason'
+            )
+            ->leftJoin('users as sender_user', 'sender_user.user_id', '=', 'reports.sender')
+            ->leftJoin('users as recipient_user', 'recipient_user.user_id', '=', 'reports.recipient')
+            ->get();
+
+            
+
+
+            Log::info("User: " . $reports);
+
+            return response()->json([
+                'success' => true,
+                'data' => $reports
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching feedback: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch feedback',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function submitFeedback(Request $request)
     {
         $validated = $request->validate([
