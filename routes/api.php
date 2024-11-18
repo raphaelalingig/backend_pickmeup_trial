@@ -45,6 +45,7 @@ Route::prefix('/user')->group(function() {
     Route::get('/requirement_photos/{rider_id}', [RiderController::class, 'getUploadedImages']);
     
     Route::put('rider_available', [RiderController::class, 'updateAvailability']);
+    Route::put('rider_online_status', [RiderController::class, 'updateOnlineStatus']);
     Route::put('update_rider_loc', [RiderController::class, 'updateRiderLocation']);
     Route::put('rider/{user_id}/status', [CustomerController::class, 'updateStatus']);
     Route::get('/available-rides', [RiderController::class, 'getAvailableRides']);
@@ -88,6 +89,7 @@ Route::prefix('/user')->group(function() {
     Route::get('/rider_history/{user_id}', [HistoryController::class, 'riderHistory']);
     Route::get('/feedbacks', [FeedbackController::class, 'index']);
     Route::post('/submit_feedback', [FeedbackController::class, 'submitFeedback']);
+    Route::post('/submit_report', [FeedbackController::class, 'submitReport']);
 
     Route::post('/book-location', [RideController::class, 'saveBookLocation']);
     Route::post('/rider-location', [RideController::class, 'setRiderLocation']);

@@ -78,5 +78,15 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class, 'recipient_id', 'user_id');
     }   
 
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'sender_id', 'user_id');
+    }
+
+    public function receivedReports()
+    {
+        return $this->hasMany(Report::class, 'recipient_id', 'user_id');
+    }
+
    
 }

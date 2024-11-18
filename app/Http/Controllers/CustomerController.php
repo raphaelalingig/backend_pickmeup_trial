@@ -405,14 +405,17 @@ class CustomerController extends Controller
     public function cancelRide(Request $request, $ride_id)
     {
         $ride = RideHistory::find($ride_id);
-    
+
         if (!$ride || $ride->status == 'Canceled') {
             return response()->json(['error' => 'This ride is no longer available or cannot be canceled'], 400);
         }
-    
+
         // Logic to cancel the ride
         $ride->status = 'Canceled';
         $ride->save();
+
+        // Delete all applications associated with the ride
+        RideApplication::where('ride_id', $ride_id)->delete();
 
         // Fetch all available rides to send in the event
         $rides = $this->ridesService->getAvailableRides();
@@ -422,11 +425,12 @@ class CustomerController extends Controller
         $data = $this->dashboardService->getCounts();
         $counts = $data['counts'];
         $bookings = $data['bookings'];
-        
+
         event(new DashboardUpdated($counts, $bookings));
 
+        // Update rider availability
         $rider = Rider::where('user_id', $ride->rider_id)->first();
-        if($rider){
+        if ($rider) {
             $rider->availability = "Available";
             $rider->save();
 
@@ -437,10 +441,10 @@ class CustomerController extends Controller
             Log::info("Ride Application successfully: " . json_encode($update));
             event(new RideProgress($update));
         }
-            
-    
+
         return response()->json(['message' => 'Ride successfully canceled']);
     }
+
 
     public function finish_ride(Request $request, $ride_id)
     {

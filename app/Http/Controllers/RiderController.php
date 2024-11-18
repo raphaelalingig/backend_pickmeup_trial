@@ -71,6 +71,22 @@ class RiderController extends Controller
         }
     }
 
+
+    public function updateOnlineStatus(Request $request)
+    {
+        $rider = Rider::where('user_id', $request->input('user_id'))->first();
+    
+        if ($rider) {
+            $rider->availability = $request->input('status');
+            
+            $rider->save();
+    
+            return response()->json($rider);
+        } else {
+            return response()->json(['error' => 'Rider not found'], 404);
+        }
+    }
+
     public function updateRiderLocation(Request $request)
     {
         $rider = Rider::where('user_id', $request->input('user_id'))->first();
@@ -97,7 +113,9 @@ class RiderController extends Controller
             return response()->json(['message' => 'Rider not found'], 404);
         }
 
-        $rider = Rider::where('user_id', $user_id)->first();
+        $rider = Rider::where('user_id', $user_id)
+                    ->with(['user'])
+                    ->first();
 
         if (!$rider) {
             return response()->json(['message' => 'Rider not found'], 404);
@@ -641,14 +659,19 @@ class RiderController extends Controller
         $ride->save();
 
 
+
+        // Delete all applications associated with the ride
+        RideApplication::where('ride_id', $ride_id)->delete();
+
+
         $update = [
             'id' => $ride->user_id,
             'status' => 'Start'
         ];
+
         Log::info("Ride Application successfully: " . json_encode($update));
         event(new RideProgress($update));
-
-
+        
     
         return response()->json(['message' => 'Now In Transit']);
     }

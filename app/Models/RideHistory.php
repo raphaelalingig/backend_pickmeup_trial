@@ -47,4 +47,9 @@ class RideHistory extends Model
     {
         return $this->hasMany(Feedback::class, 'ride_id', 'ride_id');
     }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'ride_id', 'ride_id');
+    }
 }
