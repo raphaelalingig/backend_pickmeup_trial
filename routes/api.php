@@ -62,7 +62,7 @@ Route::prefix('/user')->group(function() {
     Route::get('customerId/{user_id}', [CustomerController::class, 'getCustomerById']);
     Route::post('/book', [CustomerController::class, 'book']);
     Route::post('/book_delivery', [BookController::class, 'book_delivery']);
-    Route::post('/pakyaw_delivery', [BookController::class, 'pakyaw_delivery']);
+    Route::post('/book_pakyaw', [BookController::class, 'pakyaw_delivery']);
     Route::get('check-existing-booking/{user_id}', [CustomerController::class, 'checkActiveRide']);
     Route::get('latest-available/{user_id}', [CustomerController::class, 'getLatestAvailableRide']);
     Route::get('latest-available2/{user_id}', [CustomerController::class, 'getLatestAvailableRide2']);
