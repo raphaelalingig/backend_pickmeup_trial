@@ -21,6 +21,7 @@ return [
         Sanctum::currentApplicationUrlWithPort(),
         'oyster-app-etowk.ondigitalocean.app',
         'pickmeupadmin.xyz',
+        'adminpickmeup-production.up.railway.app'
     ))),
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
@@ -29,6 +30,7 @@ return [
         env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : '',
         'oyster-app-etowk.ondigitalocean.app',
         'pickmeupadmin.xyz',
+        'adminpickmeup-production.up.railway.app'
     ))),
 
     /*
