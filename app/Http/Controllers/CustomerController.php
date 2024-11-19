@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Rider;
+use App\Models\Delivery;
 use App\Models\RideHistory;
 use App\Models\RideLocation;
 use App\Models\RideApplication;
@@ -131,9 +132,9 @@ class CustomerController extends Controller
 
     public function checkActiveRide($user_id)
     {
+        // Fetch the active ride with specific conditions
         $activeRide = RideHistory::where('user_id', $user_id)
             ->whereIn('status', ['Available', 'Booked', 'In Transit', 'Review'])
-            // ->where('ride_type', '!=', 'Delivery') // Exclude ride_type 'Delivery'
             ->join('ride_locations', 'ride_histories.ride_id', '=', 'ride_locations.ride_id')
             ->select(
                 'ride_histories.*',
@@ -142,13 +143,16 @@ class CustomerController extends Controller
                 'ride_locations.dropoff_latitude',
                 'ride_locations.dropoff_longitude'
             )
-            ->with(['user', 'rider'])
             ->latest()
             ->first();
-
+    
+        // Check if the active ride is associated with a delivery
+        $delivery = $activeRide ? Delivery::where('ride_id', $activeRide->ride_id)->first() : null;
+    
         return response()->json([
             'hasActiveRide' => $activeRide !== null,
-            'rideDetails' => $activeRide
+            'rideDetails' => $activeRide,
+            'deliveryDeets' => $delivery,
         ]);
     }
 
