@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Rider;
 use App\Models\Delivery;
+use App\Models\Pakyaw;
 use App\Models\RideHistory;
 use App\Models\RideLocation;
 use App\Models\RideApplication;
@@ -96,49 +97,51 @@ class BookController extends Controller
 
 
     public function book_pakyaw(Request $request)
-    {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,user_id',
-            'pickup_location' => 'required|string|max:255',
-            'dropoff_location' => 'required|string|max:255',
-            'fare' => 'required|numeric',
-            'status' => 'required',
-            'distance' => 'required',
-            'ride_type' => 'required',
-            'numberOfRiders' => 'required|numeric',
-            'scheduledDate' => 'nullable',
-            'description' => 'description'
-        ]);
+{
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,user_id',
+        'pickup_location' => 'required|string|max:255',
+        'dropoff_location' => 'required|string|max:255',
+        'fare' => 'required|numeric',
+        'status' => 'required',
+        'distance' => 'required|numeric',
+        'ride_type' => 'required|string',
+        'numberOfRiders' => 'required|numeric',
+        'scheduledDate' => 'nullable|date',
+        'description' => 'nullable|string' // Fixed this line
+    ]);
 
-        // Calculate fare based on distance
-        $calculatedFare = $this->fareService->calculateFare($validated['distance']);
+    // Calculate fare based on distance
+    $calculatedFare = $this->fareService->calculateFare($validated['distance']);
     
-        $rideHistory = new RideHistory();
-        $rideHistory->user_id = $validated['user_id'];
-        $rideHistory->pickup_location = $validated['pickup_location'];
-        $rideHistory->dropoff_location = $validated['dropoff_location'];
-        $rideHistory->fare = $validated['fare'];
-        $rideHistory->distance = $validated['distance'];
-        $rideHistory->calculated_fare = round($calculatedFare, 2);;
-        $rideHistory->ride_date = now();
-        $rideHistory->ride_type = $validated['ride_type'];
-        $rideHistory->status = $validated['status'];
-        $rideHistory->save();
+    $rideHistory = new RideHistory();
+    $rideHistory->user_id = $validated['user_id'];
+    $rideHistory->pickup_location = $validated['pickup_location'];
+    $rideHistory->dropoff_location = $validated['dropoff_location'];
+    $rideHistory->fare = $validated['fare'];
+    $rideHistory->distance = $validated['distance'];
+    $rideHistory->calculated_fare = round($calculatedFare, 2);
+    $rideHistory->ride_date = now();
+    $rideHistory->ride_type = $validated['ride_type'];
+    $rideHistory->status = $validated['status'];
+    $rideHistory->save();
 
+    $delivery = new Pakyaw();
+    $delivery->ride_id = $rideHistory->ride_id;
+    $delivery->num_of_riders = $validated['numberOfRiders'];
+    $delivery->description = $validated['description'];
+    $delivery->scheduled_date = $validated['scheduledDate'] 
+    ? \Carbon\Carbon::parse($validated['scheduledDate'])->format('Y-m-d H:i:s') 
+    : null;
+    $delivery->save();
 
-        $delivery = new Pakyaw();
-        $delivery->ride_id = $rideHistory->ride_id;
-        $delivery->num_of_riders = $validated['numberOfRiders'];
-        $delivery->description = $validated['description'];
-        $delivery->scheduled_date = $validated['scheduledDate'] ?? '';
-        $delivery->save();
+    // Fetch updated counts and bookings using DashboardService
+    $data = $this->dashboardService->getCounts();
+    $counts = $data['counts'];
+    $bookings = $data['bookings'];
+    event(new DashboardUpdated($counts, $bookings));
 
-        // Fetch updated counts and bookings using DashboardService
-        $data = $this->dashboardService->getCounts();
-        $counts = $data['counts'];
-        $bookings = $data['bookings'];
-        event(new DashboardUpdated($counts, $bookings));
-    
-        return response()->json(['success' => true, 'ride_id' => $rideHistory->ride_id], 201);
-    }
+    return response()->json(['success' => true, 'ride_id' => $rideHistory->ride_id], 201);
+}
+
 }
