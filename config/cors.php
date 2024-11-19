@@ -7,7 +7,7 @@ return [
         'http://localhost:3000', 
         'https://backendpickmeup-production.up.railway.app',
         'https://pickmeupadmin.xyz',
-        'https://adminpickmeup-production.up.railway.app/'
+        'https://adminpickmeup-production.up.railway.app'
         ],
 
     'allowed_origins_patterns' => [],
