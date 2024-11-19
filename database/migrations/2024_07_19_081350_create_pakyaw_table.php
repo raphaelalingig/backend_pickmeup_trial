@@ -13,8 +13,7 @@ class CreatePakyawTable extends Migration
             $table->unsignedBigInteger('ride_id');
             $table->integer('num_of_riders');
             $table->string('description');
-            $table->dateTime('date_posted');
-            $table->dateTime('scheduled_date');
+            $table->dateTime('scheduled_date')->nullable();
             $table->timestamps();
 
             $table->foreign('ride_id')->references('ride_id')->on('ride_histories')->onDelete('cascade');

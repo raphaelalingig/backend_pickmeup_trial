@@ -102,8 +102,12 @@ class BookController extends Controller
             'pickup_location' => 'required|string|max:255',
             'dropoff_location' => 'required|string|max:255',
             'fare' => 'required|numeric',
+            'status' => 'required',
             'distance' => 'required',
             'ride_type' => 'required',
+            'numberOfRiders' => 'required|numeric',
+            'scheduledDate' => 'nullable',
+            'description' => 'description'
         ]);
 
         // Calculate fare based on distance
@@ -118,8 +122,16 @@ class BookController extends Controller
         $rideHistory->calculated_fare = round($calculatedFare, 2);;
         $rideHistory->ride_date = now();
         $rideHistory->ride_type = $validated['ride_type'];
-        $rideHistory->status = 'Available';
+        $rideHistory->status = $validated['status'];
         $rideHistory->save();
+
+
+        $delivery = new Pakyaw();
+        $delivery->ride_id = $rideHistory->ride_id;
+        $delivery->num_of_riders = $validated['numberOfRiders'];
+        $delivery->description = $validated['description'];
+        $delivery->scheduled_date = $validated['scheduledDate'] ?? '';
+        $delivery->save();
 
         // Fetch updated counts and bookings using DashboardService
         $data = $this->dashboardService->getCounts();

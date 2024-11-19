@@ -18,7 +18,6 @@ class Pakyaw extends Model
     // Specify the attributes that are mass assignable
     protected $fillable = [
         'ride_id',
-        'date_posted',
         'num_of_riders',
         'description',
         'scheduled_date'

@@ -120,6 +120,7 @@ class CustomerController extends Controller
         $data = $this->dashboardService->getCounts();
         $counts = $data['counts'];
         $bookings = $data['bookings'];
+        //Pusher Broadcast
         event(new DashboardUpdated($counts, $bookings));
     
         return response()->json(['success' => true, 'ride_id' => $rideHistory->ride_id], 201);
