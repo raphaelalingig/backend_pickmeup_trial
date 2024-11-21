@@ -28,4 +28,5 @@ class RideApplication extends Model
     {
         return $this->belongsTo(RideHistory::class, 'ride_id');
     }
+    
 }

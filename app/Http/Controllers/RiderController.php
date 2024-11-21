@@ -199,6 +199,7 @@ class RiderController extends Controller
     public function getAvailableRides()
     {
         $availableRides = $this->ridesService->getAvailableRides();
+        \Log::info("RIDES: " . json_encode($availableRides));
     
         return response()->json($availableRides);
     }
@@ -561,7 +562,7 @@ class RiderController extends Controller
                 $customer = $validated['customer_id'];
 
                 $ride = RideHistory::where('ride_id', $ride_id)
-                                ->where('status', 'Available')
+                                ->whereIn('status', ['Available', 'Scheduled'])
                                 ->lockForUpdate()
                                 ->first();
 
@@ -573,7 +574,7 @@ class RiderController extends Controller
                 $check = RideApplication::where('ride_id', $ride_id)
                                 ->where('applier', $user_id)
                                 ->where('apply_to', $customer)
-                                ->where('status', 'Pending')
+                                ->whereIn('status', ['Pending', 'Matched'])
                                 ->lockForUpdate()
                                 ->first();
 
@@ -618,7 +619,7 @@ class RiderController extends Controller
     public function checkActiveRide($user_id)
     {
         $activeRide = RideHistory::where('rider_id', $user_id)
-            ->whereIn('status', ['Booked', 'In Transit'])
+            ->whereIn('status', ['Booked', 'In Transit', 'Start'])
             ->with(['user', 'ridelocations'])
             ->latest()
             ->first();
@@ -626,6 +627,58 @@ class RiderController extends Controller
         return response()->json([
             'hasActiveRide' => $activeRide !== null,
             'rideDetails' => $activeRide
+        ]);
+    }
+
+    public function startPakyaw($ride_id)
+    {
+        $ride = RideHistory::where('ride_id', $ride_id)
+        ->whereNotNull('rider_id')
+        ->first();
+
+        // Check if the ride exists
+        if (!$ride) {
+            return response()->json([
+                'message' => 'Ride not found or no rider assigned to this ride.'
+            ], 404);
+        }
+
+        // Update the status to 'Start'
+        $ride->status = 'Booked';
+        $ride->save();
+
+        $apply = RideApplication::where('ride_id', $ride_id)
+                        ->where('applier', $ride->rider_id)
+                        ->where('status', 'Matched')
+                        ->lockForUpdate()
+                        ->first();
+
+            $rider = User::where('user_id', $ride->user_id)
+                        ->first(['first_name', 'last_name', 'mobile_number', 'status']);
+
+            // Log the rider's first name
+            if ($rider) {
+                Log::info("User: " . $rider->first_name);
+            }
+
+            // Check if $apply is not null before merging
+            if ($apply) {
+                // Merge data from $apply and additional rider info
+                $ride = array_merge($apply->toArray(), [
+                    'rider_name' => $rider->first_name . ' ' . $rider->last_name,
+                ]);
+
+                // Log and broadcast the ride data
+                Log::info("Broadcasting Ride Data: " . json_encode($ride));
+                event(new RideBooked($ride));
+            } else {
+                Log::warning("No matching RideApplication found for ride_id: $ride_id, applier: $ride->rider_id");
+            }
+
+        // Return the updated ride details
+        return response()->json([
+            'message' => 'Ride status updated to Start.',
+            'ride' => $ride,
         ]);
     }
 

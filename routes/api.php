@@ -54,6 +54,7 @@ Route::prefix('/user')->group(function() {
     Route::post('/apply_ride/{ride_id}', [RiderController::class, 'apply_ride']);
     Route::put('/decline_ride/{apply_id}', [RiderController::class, 'decline_ride']);
     Route::get('check-active-ride/{user_id}', [RiderController::class, 'checkActiveRide']);
+    Route::put('/start_pakyaw/{ride_id}', [RiderController::class, 'startPakyaw']);
     Route::put('/start_ride/{ride_id}', [RiderController::class, 'start_ride']);
     Route::put('/finish_ride/{ride_id}', [RiderController::class, 'finish_ride']);
 
@@ -64,6 +65,7 @@ Route::prefix('/user')->group(function() {
     Route::post('/book_delivery', [BookController::class, 'book_delivery']);
     Route::post('/book_pakyaw', [BookController::class, 'book_pakyaw']);
     Route::get('check-existing-booking/{user_id}', [CustomerController::class, 'checkActiveRide']);
+    Route::get('check-existing-pakyaw/{user_id}', [CustomerController::class, 'checkActiveRide']);
     Route::get('latest-available/{user_id}', [CustomerController::class, 'getLatestAvailableRide']);
     Route::get('latest-available2/{user_id}', [CustomerController::class, 'getLatestAvailableRide2']);
     Route::put('cancel_ride/{ride_id}', [CustomerController::class, 'cancelRide']);
@@ -72,6 +74,8 @@ Route::prefix('/user')->group(function() {
     Route::get('/riders_loc', [CustomerController::class, 'getRiderLocations']);
     Route::get('/rider_loc_id/{rider_id}', [CustomerController::class, 'getRiderLocationById']);
     Route::post('/apply_rider/{ride_id}', [CustomerController::class, 'apply_rider']);
+    Route::post('/accept_rider/{ride_id}', [CustomerController::class, 'accept_rider']);
+    Route::put('/request_start_pakyaw/{ride_id}', [CustomerController::class, 'request_startPakyaw']);
     
 
     Route::get('/admin', [AdminController::class, 'getAdmin']);

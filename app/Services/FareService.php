@@ -5,7 +5,7 @@ namespace App\Services;
 class FareService
 {
     private const BASE_FARE = 40;
-    private const ADDITIONAL_FARE_RATE = 10;
+    private const ADDITIONAL_FARE_RATE = 12;
     private const THRESHOLD_KM = 2;
 
     public function calculateFare(float $distance): float
