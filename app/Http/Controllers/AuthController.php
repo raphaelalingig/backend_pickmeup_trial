@@ -61,6 +61,18 @@ class AuthController extends Authenticatable
             }
 
             $user = $request->user();
+
+            if ($user->is_logged_in) {
+                Auth::logout();
+                return response()->json([
+                    'message' => 'Your account is already logged in on another device.',
+                ], 403);
+            }
+    
+            // Set the user as logged in
+            $user->is_logged_in = true;
+            $user->save();
+
             $token = $user->createToken('Personal Access Token')->plainTextToken;
 
 
@@ -91,6 +103,17 @@ class AuthController extends Authenticatable
             }
     
             $user = $request->user();
+
+            if ($user->is_logged_in) {
+                Auth::logout();
+                return response()->json([
+                    'message' => 'Your account is already logged in on another device.',
+                ], 403);
+            }
+    
+            // Set the user as logged in
+            $user->is_logged_in = true;
+            $user->save();
             $token = $user->createToken('Personal Access Token')->plainTextToken;
             
             return response([
@@ -147,6 +170,8 @@ class AuthController extends Authenticatable
             // Check if the user and token exist
             $user = $request->user();
             if ($user) {
+                $user->is_logged_in = false;
+                $user->save();
                 $token = $user->currentAccessToken();
                 if ($token) {
                     $token->delete();
