@@ -337,14 +337,13 @@ class CustomerController extends Controller
                     return response()->json(['message' => 'This ride is no longer available.'], 200);
                 }
 
-                $isAvailable = Rider::where('user_id', $user_id)
+                $isAvailable = Rider::where('user_id', $rider_id)
                                 ->where('availability', 'Available')
-                                ->lockForUpdate()
                                 ->first();
 
                 if (!$isAvailable) {
                     Log::warning("Rider no longer available " . $ride_id);
-                    return response()->json(['message' => 'Rider no longer available.'], 200);
+                    return response()->json(['message' => 'not available'], 200);
                 }
 
                 $check = RideApplication::where('ride_id', $ride_id)
