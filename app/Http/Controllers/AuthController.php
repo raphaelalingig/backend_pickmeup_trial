@@ -16,6 +16,10 @@ use Infobip\Api\SmsApi;
 use Infobip\Model\SmsDestination;
 use Infobip\Model\SmsTextualMessage;
 use Infobip\Model\SmsAdvancedTextualRequest;
+use App\Events\UserLoggedOutFromOtherDevices;
+use Illuminate\Support\Facades\Log;
+
+
 
 require(__DIR__ . '/../../../vendor/autoload.php');
 
@@ -26,25 +30,24 @@ class AuthController extends Authenticatable
         $this->model = new User();
     }
 
-    /**
-     *  /api/user/login
-     * Store a newly created resource in storage.
-     */
 
-    public function showCustomer() {
-        try {
-            return User::where('role_id', 3)->get();
-        } catch (\Throwable $th) {
-            return response(["message" => $th->getMessage()]);
-        }
-    }
+    public function validateToken(Request $request)
+    {
+        \Log::info('Received token: ' . $request->bearerToken());
+        \Log::info('Auth user: ' . Auth::user());
+        $user = Auth::user(); // Get the authenticated user
 
-    public function showRider() {
-        try {
-            return User::where('role_id', 2)->get();
-        } catch (\Throwable $th) {
-            return response(["message" => $th->getMessage()]);
+        if ($user) {
+            return response()->json([
+                'message' => 'Token is valid',
+                'role' => $user->role_id,
+                'status' => $user->status,
+                'user_id' => $user->user_id,
+                'token' => $request->bearerToken(), // You can return the token or any other data if needed
+            ], 200);
         }
+
+        return response()->json(['message' => 'Invalid or expired token'], 401);
     }
 
     /**
@@ -93,38 +96,66 @@ class AuthController extends Authenticatable
 
 
 
+    // public function loginAccountMobile(Request $request)
+    // {
+    //     try {
+    //         $credentials = $request->only(['user_name', 'password']);
+    
+    //         if (!Auth::attempt($credentials)) {
+    //             return response(['message' => "Invalid username or password"], 401);
+    //         }
+    
+    //         $user = $request->user();
+
+    //         if ($user->is_logged_in) {
+    //             Auth::logout();
+    //             return response()->json([
+    //                 'message' => 'Your account is already logged in on another device.',
+    //             ], 403);
+    //         }
+    
+    //         // Set the user as logged in
+    //         $user->is_logged_in = true;
+    //         $user->save();
+    //         $token = $user->createToken('Personal Access Token')->plainTextToken;
+            
+    //         return response([
+    //             'token' => $token,
+    //             'role' => $user->role_id,
+    //             'status' => $user->status,
+    //             'user_id' => $user->user_id  // Include the user_id in the response
+    //         ], 200);
+    //     } catch (\Throwable $th) {
+    //         return response(['message' => $th->getMessage()], 400);
+    //     }
+    // }
+
     public function loginAccountMobile(Request $request)
     {
-        try {
-            $credentials = $request->only(['user_name', 'password']);
+        $credentials = $request->only(['user_name', 'password']);
     
-            if (!Auth::attempt($credentials)) {
-                return response(['message' => "Invalid username or password"], 401);
-            }
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
     
-            $user = $request->user();
-
-            if ($user->is_logged_in) {
-                Auth::logout();
-                return response()->json([
-                    'message' => 'Your account is already logged in on another device.',
-                ], 403);
-            }
-    
-            // Set the user as logged in
-            $user->is_logged_in = true;
-            $user->save();
-            $token = $user->createToken('Personal Access Token')->plainTextToken;
+            // Notify other devices
             
+            event(new UserLoggedOutFromOtherDevices($user->user_id));
+    
+            // Revoke all previous tokens
+            $user->tokens()->delete();
+    
+            // Create a new token
+            $token = $user->createToken('Personal Access Token')->plainTextToken;
+    
             return response([
-                'token' => $token,
-                'role' => $user->role_id,
-                'status' => $user->status,
-                'user_id' => $user->user_id  // Include the user_id in the response
-            ], 200);
-        } catch (\Throwable $th) {
-            return response(['message' => $th->getMessage()], 400);
+                            'token' => $token,
+                            'role' => $user->role_id,
+                            'status' => $user->status,
+                            'user_id' => $user->user_id  // Include the user_id in the response
+                        ], 200);
         }
+    
+        return response()->json(['message' => 'Invalid credentials.'], 401);
     }
 
 
@@ -170,6 +201,11 @@ class AuthController extends Authenticatable
             // Check if the user and token exist
             $user = $request->user();
             if ($user) {
+                $rider = Rider::where('user_id', $user->user_id)
+                    ->first();
+                $rider->availability = "Offline";
+                $rider->save(); 
+
                 $user->is_logged_in = false;
                 $user->save();
                 $token = $user->currentAccessToken();
