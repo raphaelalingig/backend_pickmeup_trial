@@ -26,7 +26,7 @@ class UserLoggedOutFromOtherDevices implements ShouldBroadcastNow
 
     public function broadcastOn()
     {
-        return new Channel('logout.' . $this->userId);
+        return new Channel('logout' . $this->userId);
     }
 
     public function broadcastAs()

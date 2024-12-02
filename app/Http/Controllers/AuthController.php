@@ -47,7 +47,7 @@ class AuthController extends Authenticatable
             ], 200);
         }
 
-        return response()->json(['message' => 'Invalid or expired token'], 401);
+        return response()->json(['message' => 'Invalid or expired token'], 200);
     }
 
     /**
