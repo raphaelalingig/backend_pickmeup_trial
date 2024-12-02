@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class UserLoggedOutFromOtherDevices
+class UserLoggedOutFromOtherDevices implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -25,6 +25,18 @@ class UserLoggedOutFromOtherDevices
 
     public function broadcastOn()
     {
-        return new PrivateChannel('user-logout.' . $this->userId);
+        return new Channel('user-logout.' . $this->userId);
+    }
+
+    public function broadcastAs()
+    {
+        return 'LOGOUT';
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'userId' => $this->userId
+        ];
     }
 }

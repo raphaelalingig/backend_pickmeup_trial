@@ -6,6 +6,10 @@ Broadcast::channel('user-logout.{userId}', function ($user, $userId) {
     return (int) $user->user_id === (int) $userId;
 });
 
+Broadcast::channel('logout', function ($user) {
+    return true; // Add your logic to authorize the user here
+});
+
 Broadcast::channel('dashboard', function ($user) {
     return true; // Add your logic to authorize the user here
 });
