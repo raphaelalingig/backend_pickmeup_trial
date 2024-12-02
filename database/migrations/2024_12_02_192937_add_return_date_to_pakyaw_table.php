@@ -9,11 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_logged_in')->default(false);
+        Schema::table('pakyaw', function (Blueprint $table) {
+            $table->dateTime('return_date')->after('scheduled_date')->nullable();
         });
+            
     }
 
     /**
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_logged_in');
+        Schema::table('pakyaw', function (Blueprint $table) {
+            $table->dropColumn('return_date');
         });
     }
 };

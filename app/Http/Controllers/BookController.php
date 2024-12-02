@@ -108,11 +108,9 @@ class BookController extends Controller
         'ride_type' => 'required|string',
         'numberOfRiders' => 'required|numeric',
         'scheduledDate' => 'nullable|date',
-        'description' => 'nullable|string' // Fixed this line
+        'returnDate' => 'nullable|date',
+        'description' => 'nullable|string'
     ]);
-
-    // Calculate fare based on distance
-    $calculatedFare = $this->fareService->calculateFare($validated['distance']);
     
     $rideHistory = new RideHistory();
     $rideHistory->user_id = $validated['user_id'];
@@ -120,7 +118,7 @@ class BookController extends Controller
     $rideHistory->dropoff_location = $validated['dropoff_location'];
     $rideHistory->fare = $validated['fare'];
     $rideHistory->distance = $validated['distance'];
-    $rideHistory->calculated_fare = round($calculatedFare, 2);
+    $rideHistory->calculated_fare = $validated['fare'];
     $rideHistory->ride_date = now();
     $rideHistory->ride_type = $validated['ride_type'];
     $rideHistory->status = $validated['status'];
@@ -129,10 +127,14 @@ class BookController extends Controller
     $delivery = new Pakyaw();
     $delivery->ride_id = $rideHistory->ride_id;
     $delivery->num_of_riders = $validated['numberOfRiders'];
-    $delivery->description = $validated['description'];
+    $delivery->description = $validated['description'] ? $validated['description'] : null;
     $delivery->scheduled_date = $validated['scheduledDate'] 
     ? \Carbon\Carbon::parse($validated['scheduledDate'])->format('Y-m-d H:i:s') 
     : null;
+    $delivery->return_date = $validated['returnDate'] 
+    ? \Carbon\Carbon::parse($validated['returnDate'])->format('Y-m-d H:i:s') 
+    : null;
+    
     $delivery->save();
 
     // Fetch updated counts and bookings using DashboardService

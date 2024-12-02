@@ -12,7 +12,7 @@ class CreatePakyawTable extends Migration
             $table->id('pakyaw_id');
             $table->unsignedBigInteger('ride_id');
             $table->integer('num_of_riders');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->json('riders')->nullable();
             $table->dateTime('scheduled_date')->nullable();
             $table->timestamps();

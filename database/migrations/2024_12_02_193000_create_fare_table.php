@@ -9,10 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_logged_in')->default(false);
+        Schema::create('fare', function (Blueprint $table) {
+            $table->id();
+            $table->decimal('first_2k', 10, 8);
+            $table->decimal('exceeding_2km', 11, 8);
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_logged_in');
-        });
+        Schema::dropIfExists('fare');
     }
 };
