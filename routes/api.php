@@ -12,6 +12,7 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\RideController;
 use App\Http\Controllers\BookController;
 use App\Models\Sanctum\PersonalAccessToken;
+use App\Http\Controllers\EmailVerificationController;
 use Laravel\Sanctum\Sanctum;
 
 
@@ -31,6 +32,9 @@ Route::prefix('/user')->group(function() {
     Route::post('/upload', [RiderController::class, 'upload'])->middleware('auth:sanctum');
     Route::post('/update-rider-info', [RiderController::class, 'updateRiderInfo'])->middleware('auth:sanctum');
     Route::get('/requirement_photos/{rider_id}', [RiderController::class, 'getUploadedImages']);
+
+    Route::post('/send-verification-code', [EmailVerificationController::class, 'sendVerificationCode']);
+    Route::post('/verify-email-code', [EmailVerificationController::class, 'verifyCode']);
     
     Route::put('rider_available', [RiderController::class, 'updateAvailability']);
     Route::put('rider_online_status', [RiderController::class, 'updateOnlineStatus']);
