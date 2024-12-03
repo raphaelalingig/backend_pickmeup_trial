@@ -13,6 +13,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RiderVerificationNotification;
 
 
 class AdminController extends Controller
@@ -264,22 +266,30 @@ class AdminController extends Controller
     }
 
     public function verify_rider(Request $request, $user_id)
-    {
-        $request->validate([
-            'status' => 'required|in:Verified,Pending',
-        ]);
-
+{
+    Log::info('Starting rider verification', ['user_id' => $user_id, 'status' => $request->status]);
+    
+    try {
         $rider = Rider::where('user_id', $user_id)->firstOrFail();
+        $user = User::find($user_id);
+        
+        Log::info('Found user details', ['email' => $user->email]);
+        
+        Mail::to($user->email)->send(new RiderVerificationNotification($request->status));
+        Log::info('Email sent successfully');
+        
         $rider->verification_status = $request->status;
         $rider->save();
-
+        
         return response()->json([
             'message' => 'Rider verification status updated successfully',
             'rider' => $rider
         ]);
-
-
+    } catch (\Exception $e) {
+        Log::error('Error in rider verification', ['error' => $e->getMessage()]);
+        throw $e;
     }
+}
 
     public function getRiderLocations()
     {
