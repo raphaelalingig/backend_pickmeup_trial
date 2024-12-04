@@ -397,6 +397,9 @@ class RiderController extends Controller
                 }
             }
 
+            $rider->verification_status = "Pending";
+            $rider->save();
+
             return response()->json(['success' => true, 'message' => 'Rider information updated successfully.']);
         } catch (\Exception $e) {
             \Log::error("Error updating rider info: " . $e->getMessage());
