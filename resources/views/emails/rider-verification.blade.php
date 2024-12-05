@@ -36,7 +36,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ asset('images/pickmeup-logo.png') }}" alt="Pickmeup Logo" class="logo">
+       <img src="{{ asset('images/logo.png') }}" alt="Pickmeup Logo" class="logo">
         <h2>Verification Status Update</h2>
     </div>
 
