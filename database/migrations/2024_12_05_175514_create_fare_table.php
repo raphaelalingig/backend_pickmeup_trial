@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('fare', function (Blueprint $table) {
             $table->id();
-            $table->decimal('first_2k', 10, 8);
-            $table->decimal('exceeding_2km', 11, 8);
+            $table->integer('first_2km');
+            $table->integer('exceeding_2km');
             $table->timestamps();
         });
     }
