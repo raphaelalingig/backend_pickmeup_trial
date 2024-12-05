@@ -86,7 +86,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('images/logo.png') }}" alt="Pickmeup Logo" class="logo">
+         
             <h2 style="color: #2d3748; margin: 0;">Verification Status Update</h2>
         </div>
 
