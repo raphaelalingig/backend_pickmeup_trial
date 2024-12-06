@@ -266,36 +266,78 @@ class AdminController extends Controller
     }
 
     public function verify_rider(Request $request, $user_id)
-{
-    Log::info('Starting rider verification', ['user_id' => $user_id, 'status' => $request->status]);
-    
-    try {
-        $rider = Rider::where('user_id', $user_id)->firstOrFail();
-        $user = User::find($user_id);
+    {
+        Log::info('Starting rider verification', ['user_id' => $user_id, 'status' => $request->status]);
         
-        Log::info('Found user details', ['email' => $user->email]);
-        
-        Mail::to($user->email)->send(new RiderVerificationNotification($request->status));
-        Log::info('Email sent successfully');
-        
-        $rider->verification_status = $request->status;
-        $rider->save();
-        
-        return response()->json([
-            'message' => 'Rider verification status updated successfully',
-            'rider' => $rider
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error in rider verification', ['error' => $e->getMessage()]);
-        throw $e;
+        try {
+            $rider = Rider::where('user_id', $user_id)->firstOrFail();
+            $user = User::find($user_id);
+            
+            Log::info('Found user details', ['email' => $user->email]);
+            
+            Mail::to($user->email)->send(new RiderVerificationNotification($request->status));
+            Log::info('Email sent successfully');
+            
+            $rider->verification_status = $request->status;
+            $rider->save();
+            
+            return response()->json([
+                'message' => 'Rider verification status updated successfully',
+                'rider' => $rider
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in rider verification', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
-}
 
     public function getRiderLocations()
     {
         $riders = Rider::with(['user'])->get();
 
         return response()->json($riders);
+    }
+
+    public function getFare()
+    {
+        $fare = Fare::first(); // Fetch the first fare record
+        if (!$fare) {
+            return response()->json(['message' => 'Fare not found'], 404);
+        }
+        return response()->json($fare);
+    }
+
+    /**
+     * Update fare details after validating the admin's password.
+     */
+    public function updateFare(Request $request)
+    {
+        // Validate the incoming data
+        $request->validate([
+            'first_2km' => 'required|numeric|min:0',
+            'exceeding_2km' => 'required|numeric|min:0',
+            'password' => 'required|string',
+        ]);
+
+        // Verify admin password
+        $admin = Auth::user(); // Assuming the admin is authenticated
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
+            return response()->json(['message' => 'Invalid password'], 401);
+        }
+
+        // Fetch the fare record
+        $fare = Fare::first();
+        if (!$fare) {
+            return response()->json(['message' => 'Fare not found'], 404);
+        }
+
+        // Update the fare
+        $fare->update([
+            'first_2km' => $request->first_2km,
+            'exceeding_2km' => $request->exceeding_2km,
+        ]);
+
+        return response()->json(['message' => 'Fare updated successfully']);
     }
 
 }
