@@ -77,6 +77,8 @@ Route::prefix('/user')->group(function() {
     Route::put('update_account/{userId}', [AdminController::class, 'updateProfile'])->middleware('auth:sanctum');
     Route::put('/verify_rider/{user_id}', [AdminController::class, 'verify_rider']);
     Route::get('/riders/locations', [AdminController::class, 'getRiderLocations']);
+    Route::get('/view_fare', [AdminController::class, 'getFare']);
+    Route::put('/update_fare', [AdminController::class, 'updateFare']);
     // Route::middleware('auth:api')->put('/update_account/{userId}', [AdminController::class, 'updateProfile']);
 
     

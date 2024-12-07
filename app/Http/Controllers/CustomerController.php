@@ -346,6 +346,11 @@ class CustomerController extends Controller
                     return response()->json(['message' => 'not available'], 200);
                 }
 
+                if ($isAvailable->user_id == $user_id) {
+                    Log::warning("Applyin to self" . $ride_id);
+                    return response()->json(['message' => 'self'], 200);
+                }
+
                 $check = RideApplication::where('ride_id', $ride_id)
                                 ->where('applier', $user_id)
                                 ->where('apply_to', $rider_id)

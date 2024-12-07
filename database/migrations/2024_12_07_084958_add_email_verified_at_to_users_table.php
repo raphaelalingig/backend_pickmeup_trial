@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fare', function (Blueprint $table) {
-            $table->id();
-            $table->decimal('first_2k', 10, 8);
-            $table->decimal('exceeding_2km', 11, 8);
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dateTime('email_verified_at')->after('email')->nullable();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fare');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('email_verified_at');
+        });
     }
 };
