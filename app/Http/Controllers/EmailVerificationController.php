@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -63,6 +64,12 @@ class EmailVerificationController extends Controller
         if ($verification) {
             // Delete the verification record
             $verification->delete();
+
+            $user = User::where('email', $request->email)
+                    ->first();
+
+            $user->email_verified_at = Carbon::now();
+            $user->save();
 
             return response()->json([
                 'message' => 'Email verified successfully',
