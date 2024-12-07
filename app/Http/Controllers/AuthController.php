@@ -11,17 +11,8 @@ use App\Models\Confirmation;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\LoginRequest;
-use Infobip\Configuration;
-use Infobip\Api\SmsApi;
-use Infobip\Model\SmsDestination;
-use Infobip\Model\SmsTextualMessage;
-use Infobip\Model\SmsAdvancedTextualRequest;
 use App\Events\UserLoggedOutFromOtherDevices;
 use Illuminate\Support\Facades\Log;
-
-
-
-require(__DIR__ . '/../../../vendor/autoload.php');
 
 class AuthController extends Authenticatable
 {

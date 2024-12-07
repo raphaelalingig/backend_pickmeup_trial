@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Rider;
 use App\Models\RideHistory;
+use App\Models\Fare;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -322,7 +324,7 @@ class AdminController extends Controller
         // Verify admin password
         $admin = Auth::user(); // Assuming the admin is authenticated
         if (!$admin || !Hash::check($request->password, $admin->password)) {
-            return response()->json(['message' => 'Invalid password'], 401);
+            return response()->json(['message' => 'Invalid password'], 403);
         }
 
         // Fetch the fare record
