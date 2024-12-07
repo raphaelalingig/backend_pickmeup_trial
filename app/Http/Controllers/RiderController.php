@@ -54,6 +54,8 @@ class RiderController extends Controller
         return response()->json($riders);
     }
 
+    
+
     public function updateAvailability(Request $request)
     {
         $rider = Rider::where('user_id', $request->input('user_id'))->first();
@@ -468,17 +470,20 @@ class RiderController extends Controller
         }
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $user_id)
     {
-        try {
-            $user = User::findOrFail($id);
-            $user->status = $request->input('status');
-            $user->save();
+        $request->validate([
+            'status' => 'required|in:Active,Disabled',
+        ]);
 
-            return response()->json(['message' => 'User status updated successfully.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to update user status.'], 500);
-        }
+        $user = User::findOrFail($user_id);
+        $user->status = $request->status;
+        $user->save();
+
+        return response()->json([
+            'message' => 'User status updated successfully',
+            'user' => $user
+        ]);
     }
 
 

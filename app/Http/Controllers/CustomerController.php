@@ -59,7 +59,7 @@ class CustomerController extends Controller
     public function updateStatus(Request $request, $user_id)
     {
         $request->validate([
-            'status' => 'required|in:Active,Disabled',
+            'status' => 'required|in:Active,Blocked',
         ]);
 
         $user = User::findOrFail($user_id);
@@ -83,8 +83,8 @@ class CustomerController extends Controller
         }
 
         // Check if the user's status is "Disabled"
-        if ($user->status === 'Disabled') {
-            return response()->json(['message' => 'Account Disabled'], 200);
+        if ($user->status === 'Blocked') {
+            return response()->json(['message' => 'Account Blocked'], 200);
         }
 
         // If condition is not met, return the rider's data

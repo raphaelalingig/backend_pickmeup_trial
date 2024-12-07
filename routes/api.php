@@ -51,7 +51,6 @@ Route::prefix('/user')->group(function() {
     Route::put('/finish_ride/{ride_id}', [RiderController::class, 'finish_ride']);
 
     Route::get('/customers', [CustomerController::class, 'getCustomers']);
-    Route::put('customer/{user_id}/status', [CustomerController::class, 'updateStatus']);
     Route::get('customerId/{user_id}', [CustomerController::class, 'getCustomerById']);
     Route::post('/book', [CustomerController::class, 'book']);
     Route::post('/book_delivery', [BookController::class, 'book_delivery']);
@@ -73,6 +72,8 @@ Route::prefix('/user')->group(function() {
     Route::get('/admin', [AdminController::class, 'getAdmin']);
     Route::get('adminId/{user_id}', [AdminController::class, 'getAdminById']);
     Route::put('admin/{user_id}/status', [AdminController::class, 'updateStatus']);
+    Route::put('customer/{user_id}/status', [CustomerController::class, 'updateStatus']);
+    Route::put('rider/{user_id}/status', [RiderController::class, 'updateStatus']);
     Route::put('/update_admin/{id}', [AdminController::class, 'updateAdmin']);
     Route::put('update_account/{userId}', [AdminController::class, 'updateProfile'])->middleware('auth:sanctum');
     Route::put('/verify_rider/{user_id}', [AdminController::class, 'verify_rider']);
