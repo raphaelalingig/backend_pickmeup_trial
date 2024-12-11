@@ -27,7 +27,7 @@ Route::prefix('/user')->group(function() {
 
     Route::get('/dashboard/counts', [DashboardController::class, 'getCounts']);
     Route::get('/riders', [RiderController::class, 'getRiders']);
-    Route::get('/riders_req', [RiderController::class, 'getRidersRequirements']);
+    Route::get('/riders_req', [AdminController::class, 'getRidersRequirements']);
 
     Route::post('/upload', [RiderController::class, 'upload'])->middleware('auth:sanctum');
     Route::post('/update-rider-info', [RiderController::class, 'updateRiderInfo'])->middleware('auth:sanctum');
@@ -71,6 +71,8 @@ Route::prefix('/user')->group(function() {
 
     Route::get('/admin', [AdminController::class, 'getAdmin']);
     Route::get('adminId/{user_id}', [AdminController::class, 'getAdminById']);
+    Route::get('notifications', [AdminController::class, 'getNotifications']);
+    Route::get('/riders_req', [AdminController::class, 'getRidersRequirements']);
     Route::put('admin/{user_id}/status', [AdminController::class, 'updateStatus']);
     Route::put('customer/{user_id}/status', [CustomerController::class, 'updateStatus']);
     Route::put('rider/{user_id}/status', [RiderController::class, 'updateStatus']);

@@ -45,6 +45,18 @@ class AdminController extends Controller
         return response()->json($user, 200);
     }
 
+    public function getRidersRequirements()
+    {
+        // Fetch riders with their related user data and requirement photos
+        $riders = Rider::with([
+            'user', // Load the associated User model
+            'requirementphotos' // Load the associated RequirementPhoto model
+        ])->get();
+
+        // Return the data as JSON
+        return response()->json($riders);
+    }
+
     // public function updateAccount(Request $request, $userId)
     // {
 

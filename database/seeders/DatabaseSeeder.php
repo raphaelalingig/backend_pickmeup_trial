@@ -311,6 +311,15 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
 
-        ]);        
+        ]);
+
+        DB::table('fare')->insert([
+            [
+                'first_2km' => 40,
+                'exceeding_2km' => 12,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }

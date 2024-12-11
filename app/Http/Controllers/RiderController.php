@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 use App\Events\RidesUpdated;
+use App\Events\Requirements;
 use App\Events\DashboardUpdated;
 use App\Events\RideBooked;
 use App\Events\RideProgress;
@@ -194,8 +195,6 @@ class RiderController extends Controller
 
         return response()->json(['message' => 'Application retrieved successfully', 'data' => [$applicationData]], 200);
     }
-
-
     
 
     public function getAvailableRides()
@@ -205,19 +204,6 @@ class RiderController extends Controller
     
         return response()->json($availableRides);
     }
-
-    public function getRidersRequirements()
-    {
-        // Fetch riders with their related user data and requirement photos
-        $riders = Rider::with([
-            'user', // Load the associated User model
-            'requirementphotos' // Load the associated RequirementPhoto model
-        ])->get();
-
-        // Return the data as JSON
-        return response()->json($riders);
-    }
-
 
 
     public function upload(Request $request)
@@ -401,6 +387,17 @@ class RiderController extends Controller
 
             $rider->verification_status = "Pending";
             $rider->save();
+
+
+            $requirements = Rider::with([
+                'user', // Load the associated User model
+                'requirementphotos' // Load the associated RequirementPhoto model
+            ])->get();
+
+            
+            event(new Requirements($requirements));
+
+
 
             return response()->json(['success' => true, 'message' => 'Rider information updated successfully.']);
         } catch (\Exception $e) {
