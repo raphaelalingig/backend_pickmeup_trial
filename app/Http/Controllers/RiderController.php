@@ -389,13 +389,13 @@ class RiderController extends Controller
             $rider->save();
 
 
-            $requirements = Rider::with([
-                'user', // Load the associated User model
-                'requirementphotos' // Load the associated RequirementPhoto model
-            ])->get();
+            // $requirements = Rider::with([
+            //     'user', // Load the associated User model
+            //     'requirementphotos' // Load the associated RequirementPhoto model
+            // ])->get();
 
             
-            event(new Requirements($requirements));
+            // event(new Requirements($requirements));
 
 
 
