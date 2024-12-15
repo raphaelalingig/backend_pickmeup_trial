@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Rider;
 use App\Models\Confirmation;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -179,11 +180,15 @@ class AuthController extends Authenticatable
         try {
             // Check if the user and token exist
             $user = $request->user();
-            if ($user) {
-                $rider = Rider::where('user_id', $user->user_id)
+            Log::info("User data: " . json_encode($user));
+
+            $rider = Rider::where('user_id', $user->user_id)
                     ->first();
+                    
+                Log::info("Broadcasting Ride Data: " . json_encode($rider));
                 $rider->availability = "Offline";
                 $rider->save(); 
+            if ($user) {
 
                 $user->is_logged_in = false;
                 $user->save();
