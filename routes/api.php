@@ -80,7 +80,9 @@ Route::prefix('/user')->group(function() {
     Route::put('rider/{user_id}/status', [RiderController::class, 'updateStatus']);
     Route::put('/update_admin/{id}', [AdminController::class, 'updateAdmin']);
     Route::put('update_account/{userId}', [AdminController::class, 'updateProfile'])->middleware('auth:sanctum');
+    Route::put('/notify_rider/{user_id}', [AdminController::class, 'notify_rider']);
     Route::put('/verify_rider/{user_id}', [AdminController::class, 'verify_rider']);
+    Route::put('/reject_rider/{user_id}', [AdminController::class, 'reject_rider']);
     Route::get('/riders/locations', [AdminController::class, 'getRiderLocations']);
     Route::get('/view_fare', [AdminController::class, 'getFare']);
     Route::put('/update_fare', [AdminController::class, 'updateFare'])->middleware('auth:sanctum');

@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RiderVerificationNotification;
+use App\Mail\RiderRejectionMail;
+use App\Mail\UnclearDocumentationMail;
 
 
 class AdminController extends Controller
@@ -301,6 +303,75 @@ class AdminController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error in rider verification', ['error' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    public function notify_rider(Request $request, $user_id)
+    {
+        Log::info('Notifying Rider', ['user_id' => $user_id, 'status' => $request->status]);
+        
+        try {
+            $rider = Rider::where('user_id', $user_id)->firstOrFail();
+            $user = User::find($user_id);
+            
+            Log::info('Found user details', ['email' => $user->email]);
+            
+            Mail::to($user->email)->send(new RiderVerificationNotification($request->status));
+            Log::info('Email sent successfully');
+            
+            $rider->verification_status = $request->status;
+            $rider->save();
+            
+            return response()->json([
+                'message' => 'Rider verification status updated successfully',
+                'rider' => $rider
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in rider verification', ['error' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    public function reject_rider(Request $request, $user_id)
+    {
+        Log::info('Starting rider rejection', [
+            'user_id' => $user_id, 
+            'status' => $request->status,
+            'reason' => $request->reason
+        ]);
+        
+        try {
+            $rider = Rider::where('user_id', $user_id)->firstOrFail();
+            $user = User::find($user_id);
+
+            $rider->verification_status = $request->status;
+            $rider->save();
+
+            switch ($request->status) {
+                case 'Unverified':
+                    Mail::to($user->email)->send(new RiderRejectionMail($user, $request->reason));
+                    $message = 'Rider rejected successfully';
+                    break;
+
+                case 'Pending':
+                    Mail::to($user->email)->send(new UnclearDocumentationMail($user, $request->reason));
+                    $message = 'Unclear documentation notification sent successfully';
+                    break;
+
+                default:
+                    throw new \Exception('Invalid action type');
+            }
+            
+            // Send rejection email
+            // Mail::to($user->email)->send(new RiderRejectionMail($user, $request->reason));
+            
+            return response()->json([
+                'message' => $message,
+                'rider' => $rider
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in rider rejection', ['error' => $e->getMessage()]);
             throw $e;
         }
     }
