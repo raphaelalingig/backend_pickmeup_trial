@@ -52,7 +52,7 @@ class CustomerController extends Controller
 
     public function getCustomers()
     {
-        $customers = User::where('role_id', User::ROLE_CUSTOMER)->get(['user_id', 'first_name', 'last_name', 'mobile_number', 'status']);
+        $customers = User::where('role_id', User::ROLE_CUSTOMER)->get(['user_id', 'first_name', 'last_name', 'mobile_number', 'status', 'email', 'user_name']);
         return response()->json($customers);
     }
 
