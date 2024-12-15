@@ -11,9 +11,11 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\RideController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\PasswordResetController;
 use App\Models\Sanctum\PersonalAccessToken;
 use App\Http\Controllers\EmailVerificationController;
 use Laravel\Sanctum\Sanctum;
+
 
 
 //USER MANAGEMENT
@@ -96,6 +98,10 @@ Route::prefix('/user')->group(function() {
     Route::post('/book-location', [RideController::class, 'saveBookLocation']);
     Route::post('/rider-location', [RideController::class, 'setRiderLocation']);
 
+
+    Route::post('/password-reset/send-code', [PasswordResetController::class, 'sendResetCode']);
+    Route::post('/password-reset/verify-code', [PasswordResetController::class, 'verifyResetCode']);
+    Route::post('/password-reset/reset', [PasswordResetController::class, 'resetPassword']);
     
 
 

@@ -1,12 +1,3 @@
-<!-- <!DOCTYPE html>
-<html>
-<body>
-    <h2>Your Email Verification Code</h2>
-    <p>Your verification code is: <strong>{{ $code }}</strong></p>
-    <p>This code will expire in 15 minutes.</p>
-</body>
-</html> -->
-
 <!-- resources/views/emails/password-reset.blade.php -->
 <!DOCTYPE html>
 <html>
@@ -58,12 +49,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Email Verification</h2>
+            <h2>Password Reset Verification</h2>
         </div>
 
         <p>Hello,</p>
         
-        <p>We received a request to verify your Email. Please use the following verification code to complete email verification:</p>
+        <p>We received a request to reset your password. Please use the following verification code to complete your password reset:</p>
 
         <div class="code-container">
             <div class="verification-code">{{ $code }}</div>
@@ -71,7 +62,7 @@
 
         <p>This code will expire in 15 minutes for security purposes.</p>
 
-        <p>If you didn't request this, please ignore this email or contact support if you have concerns.</p>
+        <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
 
         <div class="footer">
             <p>This is an automated email, please do not reply.</p>
