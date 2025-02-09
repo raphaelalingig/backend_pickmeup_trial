@@ -8,7 +8,7 @@ return [
         'https://adminpickmeup.vercel.app',
         'http://192.168.1.16:8000'
         ],  
-
+        
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
