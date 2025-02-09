@@ -19,7 +19,6 @@ return [
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        'oyster-app-etowk.ondigitalocean.app',
         'pickmeup-admin.vercel.app',
     ))),
 
@@ -27,7 +26,6 @@ return [
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : '',
-        'oyster-app-etowk.ondigitalocean.app',
         'pickmeup-admin.vercel.app',
     ))),
 
