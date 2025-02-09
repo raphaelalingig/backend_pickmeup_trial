@@ -20,8 +20,7 @@ return [
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
         'oyster-app-etowk.ondigitalocean.app',
-        'pickmeupadmin.xyz',
-        'adminpickmeup-production.up.railway.app'
+        'pickmeup-admin.vercel.app',
     ))),
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
@@ -29,8 +28,7 @@ return [
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : '',
         'oyster-app-etowk.ondigitalocean.app',
-        'pickmeupadmin.xyz',
-        'adminpickmeup-production.up.railway.app'
+        'pickmeup-admin.vercel.app',
     ))),
 
     /*
