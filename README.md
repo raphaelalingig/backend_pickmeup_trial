@@ -56,11 +56,7 @@ php artisan serve
 
 The API will be accessible at `http://localhost:8000`.
 
-## API Credentials
 
-### Default Admin User
-- Email: `admin@pickmeup.com`
-- Password: `password`
 
 ### API Authentication
 The API uses Laravel Sanctum for authentication. To authenticate requests, include the following header:
@@ -123,6 +119,3 @@ If your application uses additional services such as Redis, Elasticsearch, or an
 
 If you encounter any issues during installation or running the application, check the Laravel log files located in `storage/logs/laravel.log`.
 
-## API Documentation
-
-API endpoints documentation is available at `http://localhost:8000/api/documentation` after starting the server.
